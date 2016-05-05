@@ -104,7 +104,7 @@ public class Runner {
                             String dateTime = spanText.substring(0, spanText.length() - " +0800".length());
                             Date parsed = simpleDateFormat.parse(dateTime);
                             email.setDate(parsed);
-                        } else if (spanText.toLowerCase().contains("kuala lumpur")) {
+                        } else if (spanText.toLowerCase().contains(",")) {
                             if (addressCounter == 0) {
                                 email.setPickUp(spanText);
                                 addressCounter++;
