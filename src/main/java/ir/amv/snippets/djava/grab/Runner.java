@@ -10,10 +10,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Properties;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.mail.*;
@@ -29,6 +27,15 @@ public class Runner {
     public static void main(String[] args) {
         Properties props = new Properties();
         props.setProperty("mail.store.protocol", "imaps");
+        int monthToReport = 0;
+        if (args.length > 0) {
+            monthToReport = Integer.valueOf(args[0]);
+        } else {
+            Calendar calendar = new GregorianCalendar();
+            monthToReport = calendar.get(Calendar.MONTH);
+            monthToReport = (monthToReport + 11) % 12;
+        }
+        System.out.println("monthToReport = " + monthToReport);
         try {
             ObjectInputStream objectInputStream = null;
             List<Email> emails = null;
@@ -51,23 +58,28 @@ public class Runner {
                 List<Message> messagesCopy = new ArrayList<Message>();
                 messagesCopy.add(messages[0]);
                 for (Message message : messages) {
-                    Object content = message.getContent();
-                    Email email = new Email();
-                    if (content instanceof MimeMultipart) {
-                        email.setHtml("");
-                        MimeMultipart mimeMultipart = (MimeMultipart) content;
-                        int count = mimeMultipart.getCount();
-                        for (int i = 0; i < count; i++) {
-                            BodyPart bodyPart = mimeMultipart.getBodyPart(i);
-                            Object bodyContent = bodyPart.getContent();
-                            if (bodyPart.getContentType().toLowerCase().contains("html")) {
-                                email.setHtml(email.getHtml() + bodyContent);
+                    Date receivedDate = message.getReceivedDate();
+                    Calendar calendar = new GregorianCalendar();
+                    calendar.setTime(receivedDate);
+                    if (calendar.get(Calendar.MONTH) == monthToReport) {
+                        Object content = message.getContent();
+                        Email email = new Email();
+                        if (content instanceof MimeMultipart) {
+                            email.setHtml("");
+                            MimeMultipart mimeMultipart = (MimeMultipart) content;
+                            int count = mimeMultipart.getCount();
+                            for (int i = 0; i < count; i++) {
+                                BodyPart bodyPart = mimeMultipart.getBodyPart(i);
+                                Object bodyContent = bodyPart.getContent();
+                                if (bodyPart.getContentType().toLowerCase().contains("html")) {
+                                    email.setHtml(email.getHtml() + bodyContent);
+                                }
                             }
+                        } else if (message.getContentType().toLowerCase().contains("html")) {
+                            email.setHtml(message.getContent().toString());
                         }
-                    } else if (message.getContentType().toLowerCase().contains("html")) {
-                        email.setHtml(message.getContent().toString());
+                        emails.add(email);
                     }
-                    emails.add(email);
                 }
                 ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(emailsFileName));
                 objectOutputStream.writeObject(emails);
@@ -75,10 +87,33 @@ public class Runner {
                 objectOutputStream.close();
             }
             System.out.println("Fetched the emails, generating report");
+            System.out.println("emails.size() = " + emails.size());
+            int successfulyFetchedSumCount = 0;
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
             for (int i = 0; i < emails.size(); i++) {
                 try {
                     Email email = emails.get(i);
                     Document doc = Jsoup.parse(email.getHtml());
+                    Elements spanElements = doc.getElementsByTag("span");
+                    Iterator<Element> iterator = spanElements.iterator();
+                    int addressCounter = 0;
+                    while (iterator.hasNext()) {
+                        Element nextSpan = iterator.next();
+                        String spanText = nextSpan.text();
+                        if (spanText.contains("+0800")) {
+                            String dateTime = spanText.substring(0, spanText.length() - " +0800".length());
+                            Date parsed = simpleDateFormat.parse(dateTime);
+                            email.setDate(parsed);
+                        } else if (spanText.toLowerCase().contains("kuala lumpur")) {
+                            if (addressCounter == 0) {
+                                email.setPickUp(spanText);
+                                addressCounter++;
+                            } else if (addressCounter == 1) {
+                                email.setDropOff(spanText);
+                                addressCounter++;
+                            }
+                        }
+                    }
                     Elements elements = doc.getElementsByAttributeValueMatching("width", "44%");
                     ListIterator<Element> tdElemenetsIterator = elements.listIterator();
                     while (tdElemenetsIterator.hasNext()) {
@@ -88,7 +123,10 @@ public class Runner {
                         Pattern compile = Pattern.compile("[-+]?(\\d*[.])?\\d+");
                         Matcher matcher = compile.matcher(spanText);
                         if (matcher.find()) {
-                            email.setAmount(Double.valueOf(matcher.group()));
+                            Double amount = Double.valueOf(matcher.group());
+                            email.setAmount(amount);
+                            successfulyFetchedSumCount++;
+                            System.out.println("Fetched Total: " + amount);
                         }
                     }
 //                    Elements img = doc.getElementsByTag("img");
@@ -101,7 +139,9 @@ public class Runner {
                     System.out.println("i = " + i);
                 }
             }
-            ReportCreator.generateReport(emails, configuration);
+            System.out.println("successfulyFetchedSumCount = " + successfulyFetchedSumCount);
+            ReportCreator.generateReport(emails, configuration, "email.jrxmlfile");
+            ReportCreator.generateReport(emails, configuration, "clailsheet.jrxmlfile");
         } catch (Exception mex) {
             mex.printStackTrace();
         }

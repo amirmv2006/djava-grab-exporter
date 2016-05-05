@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.1.0.final using JasperReports Library version 6.1.0  -->
+<!-- 2016-05-05T22:20:46 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Blank_A4" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="fca459ca-931d-4679-9228-7371b4f43a39">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<queryString language="json">
+		<![CDATA[{"test":"Amir"}]]>
+	</queryString>
+	<field name="html" class="java.lang.String">
+		<fieldDescription><![CDATA[html]]></fieldDescription>
+	</field>
+	<field name="amount" class="java.lang.Double">
+		<fieldDescription><![CDATA[amount]]></fieldDescription>
+	</field>
+	<field name="date" class="java.util.Date">
+		<fieldDescription><![CDATA[date]]></fieldDescription>
+	</field>
+	<field name="pickUp" class="java.lang.String">
+		<fieldDescription><![CDATA[pickUp]]></fieldDescription>
+	</field>
+	<field name="dropOff" class="java.lang.String">
+		<fieldDescription><![CDATA[dropOff]]></fieldDescription>
+	</field>
+	<variable name="totalAmount" class="java.lang.Double" calculation="Sum">
+		<variableExpression><![CDATA[$F{amount}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="79" splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="35" splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="61" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="100" height="30" uuid="b22df011-8485-447d-ba48-96e249ed91f8"/>
+				<text><![CDATA[date]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="100" y="0" width="100" height="30" uuid="7972d0cc-9b7e-47c9-91ed-2b6e1f6f5800"/>
+				<text><![CDATA[pickUp]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="200" y="0" width="100" height="30" uuid="dd177d7a-5dfd-4560-8a13-66249320d164"/>
+				<text><![CDATA[dropOff]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="300" y="0" width="100" height="30" uuid="cca9bd81-2214-49a5-b4fb-efd89bee64f5"/>
+				<text><![CDATA[amount]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="60" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="100" height="30" uuid="08359371-6af4-4cc5-9ce7-448a8b4dd651"/>
+				<textFieldExpression><![CDATA[$F{date}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="100" y="0" width="100" height="30" uuid="aac92391-f19a-42b9-b917-300455cc51b5"/>
+				<textFieldExpression><![CDATA[$F{pickUp}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="200" y="0" width="100" height="30" uuid="1c4fdd22-8ed4-4370-89b2-ed77dc9fe005"/>
+				<textFieldExpression><![CDATA[$F{dropOff}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="300" y="0" width="100" height="30" uuid="16ba3f28-3ce2-4228-93c8-c229e32b9be2"/>
+				<textFieldExpression><![CDATA[$F{amount}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="45" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="74" splitType="Stretch"/>
+	</summary>
+</jasperReport>
