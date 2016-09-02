@@ -13,6 +13,7 @@ public class Email implements Serializable {
     private Date date;
     private String pickUp;
     private String dropOff;
+    private boolean uber;
 
     public String getHtml() {
         return html;
@@ -52,5 +53,13 @@ public class Email implements Serializable {
 
     public void setDropOff(String dropOff) {
         this.dropOff = dropOff;
+    }
+
+    public boolean isUber() {
+        return uber;
+    }
+
+    public void setUber(boolean uber) {
+        this.uber = uber;
     }
 }
